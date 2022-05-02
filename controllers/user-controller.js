@@ -29,7 +29,11 @@ const userController = {
         .populate({
             path: 'thoughts',
             select: '-__v'
-          })
+        })
+        .populate({
+            path: 'friends',
+            select: '-__v'
+        })
         .select('-__v')
         .then(dbUserData => {
             // If no pizza is found, send 404
@@ -50,7 +54,7 @@ const userController = {
     createUser({ body }, res) {
         User.create(body)
         .then(dbUserData => res.json(dbUserData))
-        .catch(err = res.status(400).json(err));
+        .catch(err => res.status(400).json(err));
     },
     
     // update user by id

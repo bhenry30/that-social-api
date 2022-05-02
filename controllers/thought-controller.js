@@ -28,7 +28,7 @@ const thoughtController = {
           })
         .select('-__v')
         .then(dbThoughtData => {
-            // If no pizza is found, send 404
+            // If no thought is found, send 404
             if (!dbThoughtData) {
                 res.status(400).json({ message: 'No thought found with this id!'});
                 return;
@@ -43,13 +43,17 @@ const thoughtController = {
     },
 
     // create thought
-    createThought({ params, body }, res) {
-        console.log(body);
-        Thought.create(body)
-        .then (({ _id }) => {
+    createThought({ body }, res) {
+    
+        Thought.create({ 
+            thoughtText: body.thoughtText,
+            username: body.username,
+            userId: body.userId
+         })
+        .then ((dbThoughtData) => {
             return User.findOneAndUpdate(
-                { _id: params.userId},
-                { $push: { thoughts: _id } },
+                { _id: body.userId},
+                { $push: { thoughts: dbThoughtData._id } },
                 { new: true }
                 )
             })
@@ -79,14 +83,14 @@ const thoughtController = {
 
     // remove thought
     deleteThought({ params }, res) {
-        Thought.findOneAndDelete({ _id: params.thoughtId })
+        Thought.findOneAndDelete({ _id: params.id })
           .then(deletedThought => {
             if (!deletedThought) {
               return res.status(404).json({ message: 'No thought with this id!' });
             }
             return User.findOneAndUpdate(
-              { _id: params.userId },
-              { $pull: { thoughts: params.thoughtId } },
+              { _id: params._id },
+              { $pull: { thoughts: params._id} },
               { new: true }
             );
           })
